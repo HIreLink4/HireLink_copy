@@ -170,7 +170,7 @@ export default function Login() {
           </div>
           <div className="flex justify-between items-center p-2 bg-amber-50 rounded-lg border border-amber-200">
             <span className="text-amber-700">Password:</span>
-            <span className="font-mono text-amber-800 font-semibold">Password@123</span>
+            <span className="font-mono text-amber-800 font-semibold">password123</span>
           </div>
         </div>
       </div>

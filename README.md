@@ -124,7 +124,7 @@ Full API documentation available at `/swagger-ui.html`
 
 ## 🔐 Demo Accounts
 
-**Password for all accounts:** `Password@123`
+**Password for all accounts:** `password123`
 
 ### Customers
 | Name | Email | Phone |

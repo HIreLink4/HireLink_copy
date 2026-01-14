@@ -120,7 +120,7 @@ SELECT service_name, base_price FROM services;
 
 ### 📝 Demo User Credentials
 
-**Password for all accounts:** `Password@123`
+**Password for all accounts:** `password123`
 
 | User Type | Email | Phone |
 |-----------|-------|-------|

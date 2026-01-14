@@ -68,7 +68,7 @@ function Show-Help {
     Write-Host "  .\start-hirelink.ps1 -BackendOnly"
     Write-Host ""
     Write-Host "DEMO CREDENTIALS:" -ForegroundColor Green
-    Write-Host "  Password: Password@123"
+    Write-Host "  Password: password123"
     Write-Host "  Customer: 9876543210"
     Write-Host "  Provider: 9876543220"
     Write-Host "  Admin:    9876543230"
@@ -247,7 +247,7 @@ function Show-Summary {
     Write-Host "    Swagger:   http://localhost:8080/swagger-ui.html"
     Write-Host ""
     Write-Host "  DEMO LOGIN:" -ForegroundColor Yellow
-    Write-Host "    Password:  Password@123"
+    Write-Host "    Password:  password123"
     Write-Host "    Customer:  9876543210"
     Write-Host "    Provider:  9876543220"
     Write-Host "    Admin:     9876543230"
