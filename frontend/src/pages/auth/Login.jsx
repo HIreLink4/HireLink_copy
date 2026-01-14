@@ -148,6 +148,32 @@ export default function Login() {
           </Link>
         </div>
       </div>
+
+      {/* Demo Credentials */}
+      <div className="mt-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+        <p className="text-sm font-semibold text-blue-800 mb-3 flex items-center gap-2">
+          <span className="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+          Demo Credentials
+        </p>
+        <div className="space-y-2 text-xs">
+          <div className="flex justify-between items-center p-2 bg-white/60 rounded-lg">
+            <span className="text-gray-600">Customer:</span>
+            <span className="font-mono text-gray-800">9876543210</span>
+          </div>
+          <div className="flex justify-between items-center p-2 bg-white/60 rounded-lg">
+            <span className="text-gray-600">Provider:</span>
+            <span className="font-mono text-gray-800">9876543220</span>
+          </div>
+          <div className="flex justify-between items-center p-2 bg-white/60 rounded-lg">
+            <span className="text-gray-600">Admin:</span>
+            <span className="font-mono text-gray-800">9876543230</span>
+          </div>
+          <div className="flex justify-between items-center p-2 bg-amber-50 rounded-lg border border-amber-200">
+            <span className="text-amber-700">Password:</span>
+            <span className="font-mono text-amber-800 font-semibold">Password@123</span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

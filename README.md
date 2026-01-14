@@ -124,12 +124,32 @@ Full API documentation available at `/swagger-ui.html`
 
 ## 🔐 Demo Accounts
 
-| Role | Phone | Password |
-|------|-------|----------|
-| Customer | +919876543210 | password123 |
-| Provider (Electrical) | +919876543211 | password123 |
-| Provider (Plumbing) | +919876543212 | password123 |
-| Provider (Cleaning) | +919876543213 | password123 |
+**Password for all accounts:** `Password@123`
+
+### Customers
+| Name | Email | Phone |
+|------|-------|-------|
+| Priya Sharma | priya.sharma@email.com | 9876543210 |
+| Rahul Verma | rahul.verma@email.com | 9876543211 |
+| Ananya Iyer | ananya.iyer@email.com | 9876543212 |
+| Vikram Singh | vikram.singh@email.com | 9876543213 |
+| Meera Patel | meera.patel@email.com | 9876543214 |
+
+### Service Providers
+| Name | Specialty | Email | Phone |
+|------|-----------|-------|-------|
+| Ramesh Kumar | Electrical | ramesh.electrician@email.com | 9876543220 |
+| Suresh Yadav | Plumbing | suresh.plumber@email.com | 9876543221 |
+| Mahesh Sharma | Carpentry | mahesh.carpenter@email.com | 9876543222 |
+| Lakshmi Devi | Cleaning | lakshmi.cleaner@email.com | 9876543223 |
+| Ravi Prasad | Painting | ravi.painter@email.com | 9876543224 |
+| Gopal Menon | AC & Appliance | gopal.ac@email.com | 9876543225 |
+
+### Administrators
+| Role | Email | Phone |
+|------|-------|-------|
+| Admin | admin@hirelink.in | 9876543230 |
+| Super Admin | superadmin@hirelink.in | 9876543231 |
 
 ## ✨ Features
 

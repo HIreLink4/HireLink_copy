@@ -119,13 +119,19 @@ SELECT service_name, base_price FROM services;
 ```
 
 ### 📝 Demo User Credentials
-| User Type | Email | Password |
-|-----------|-------|----------|
-| Customer | john@example.com | password123 |
-| Provider | rajesh@example.com | password123 |
-| Provider | suresh@example.com | password123 |
-| Provider | priya@example.com | password123 |
-| Provider | kumar@example.com | password123 |
+
+**Password for all accounts:** `Password@123`
+
+| User Type | Email | Phone |
+|-----------|-------|-------|
+| Customer | priya.sharma@email.com | 9876543210 |
+| Customer | rahul.verma@email.com | 9876543211 |
+| Provider (Electrical) | ramesh.electrician@email.com | 9876543220 |
+| Provider (Plumbing) | suresh.plumber@email.com | 9876543221 |
+| Provider (Carpentry) | mahesh.carpenter@email.com | 9876543222 |
+| Provider (Cleaning) | lakshmi.cleaner@email.com | 9876543223 |
+| Admin | admin@hirelink.in | 9876543230 |
+| Super Admin | superadmin@hirelink.in | 9876543231 |
 
 ---
 
