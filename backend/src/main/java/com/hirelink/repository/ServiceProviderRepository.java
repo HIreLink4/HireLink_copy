@@ -18,19 +18,23 @@ public interface ServiceProviderRepository extends JpaRepository<ServiceProvider
     
     Optional<ServiceProvider> findByUserPhone(String phone);
     
+    @Query("SELECT DISTINCT sp FROM ServiceProvider sp LEFT JOIN FETCH sp.user LEFT JOIN FETCH sp.services s LEFT JOIN FETCH s.category WHERE sp.isFeatured = true")
     List<ServiceProvider> findByIsFeaturedTrue();
     
     Page<ServiceProvider> findByIsAvailableTrue(Pageable pageable);
     
-    @Query("SELECT sp FROM ServiceProvider sp WHERE sp.isAvailable = true AND sp.kycStatus = 'VERIFIED' ORDER BY sp.averageRating DESC")
+    @Query("SELECT sp FROM ServiceProvider sp LEFT JOIN FETCH sp.user WHERE sp.isAvailable = true AND sp.kycStatus = 'VERIFIED' ORDER BY sp.averageRating DESC")
     Page<ServiceProvider> findTopRatedProviders(Pageable pageable);
     
-    @Query("SELECT sp FROM ServiceProvider sp WHERE sp.basePincode = :pincode AND sp.isAvailable = true")
+    @Query("SELECT sp FROM ServiceProvider sp LEFT JOIN FETCH sp.user WHERE sp.basePincode = :pincode AND sp.isAvailable = true")
     List<ServiceProvider> findByPincodeAndAvailable(@Param("pincode") String pincode);
     
-    @Query("SELECT DISTINCT sp FROM ServiceProvider sp JOIN sp.services s WHERE s.category.categoryId = :categoryId AND sp.isAvailable = true")
+    @Query("SELECT DISTINCT sp FROM ServiceProvider sp LEFT JOIN FETCH sp.user JOIN sp.services s WHERE s.category.categoryId = :categoryId AND sp.isAvailable = true")
     Page<ServiceProvider> findByCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
     
-    @Query("SELECT sp FROM ServiceProvider sp WHERE sp.user.accountStatus = 'ACTIVE' AND sp.isAvailable = true ORDER BY sp.averageRating DESC, sp.completedBookings DESC")
+    @Query("SELECT sp FROM ServiceProvider sp LEFT JOIN FETCH sp.user WHERE sp.user.accountStatus = 'ACTIVE' AND sp.isAvailable = true ORDER BY sp.averageRating DESC, sp.completedBookings DESC")
     Page<ServiceProvider> findActiveProviders(Pageable pageable);
+    
+    @Query("SELECT sp FROM ServiceProvider sp LEFT JOIN FETCH sp.user LEFT JOIN FETCH sp.services WHERE sp.providerId = :id")
+    Optional<ServiceProvider> findByIdWithDetails(@Param("id") Long id);
 }

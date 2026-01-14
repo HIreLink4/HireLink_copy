@@ -63,6 +63,7 @@ public class ProviderService {
         return mapToProviderListResponse(providerPage);
     }
 
+    @Transactional(readOnly = true)
     public List<ProviderDTO.ProviderSummary> getFeaturedProviders() {
         List<ServiceProvider> providers = providerRepository.findByIsFeaturedTrue();
         return providers.stream()
@@ -70,6 +71,7 @@ public class ProviderService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<ProviderDTO.ProviderSummary> getNearbyProviders(String pincode) {
         List<ServiceProvider> providers = providerRepository.findByPincodeAndAvailable(pincode);
         return providers.stream()
@@ -166,34 +168,49 @@ public class ProviderService {
 
     private ProviderDTO.ProviderSummary mapToProviderSummary(ServiceProvider provider) {
         List<String> categories = Collections.emptyList();
-        if (provider.getServices() != null) {
-            categories = provider.getServices().stream()
-                    .map(s -> s.getCategory().getCategoryName())
-                    .distinct()
-                    .collect(Collectors.toList());
+        BigDecimal startingPrice = null;
+        
+        try {
+            if (provider.getServices() != null && !provider.getServices().isEmpty()) {
+                categories = provider.getServices().stream()
+                        .filter(s -> s.getCategory() != null)
+                        .map(s -> s.getCategory().getCategoryName())
+                        .distinct()
+                        .collect(Collectors.toList());
+                        
+                startingPrice = provider.getServices().stream()
+                        .filter(s -> s.getIsActive() != null && s.getIsActive())
+                        .map(s -> s.getBasePrice())
+                        .filter(p -> p != null)
+                        .min(BigDecimal::compareTo)
+                        .orElse(null);
+            }
+        } catch (Exception e) {
+            // Services not loaded, use empty defaults
+            categories = Collections.emptyList();
+            startingPrice = null;
         }
 
-        BigDecimal startingPrice = null;
-        if (provider.getServices() != null && !provider.getServices().isEmpty()) {
-            startingPrice = provider.getServices().stream()
-                    .filter(s -> s.getIsActive())
-                    .map(s -> s.getBasePrice())
-                    .min(BigDecimal::compareTo)
-                    .orElse(null);
+        // Safe user access
+        String providerName = "Unknown";
+        String profileImageUrl = null;
+        if (provider.getUser() != null) {
+            providerName = provider.getUser().getName() != null ? provider.getUser().getName() : "Unknown";
+            profileImageUrl = provider.getUser().getProfileImageUrl();
         }
 
         return ProviderDTO.ProviderSummary.builder()
                 .providerId(provider.getProviderId())
                 .businessName(provider.getBusinessName())
-                .providerName(provider.getUser().getName())
-                .profileImageUrl(provider.getUser().getProfileImageUrl())
+                .providerName(providerName)
+                .profileImageUrl(profileImageUrl)
                 .experienceYears(provider.getExperienceYears())
                 .basePincode(provider.getBasePincode())
                 .averageRating(provider.getAverageRating())
                 .totalReviews(provider.getTotalReviews())
                 .completedBookings(provider.getCompletedBookings())
                 .isAvailable(provider.getIsAvailable())
-                .availabilityStatus(provider.getAvailabilityStatus().name())
+                .availabilityStatus(provider.getAvailabilityStatus() != null ? provider.getAvailabilityStatus().name() : "OFFLINE")
                 .isFeatured(provider.getIsFeatured())
                 .startingPrice(startingPrice)
                 .serviceCategories(categories)
