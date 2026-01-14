@@ -14,37 +14,37 @@ USE hirelink_db;
 -- ============================================================================
 -- USERS (Customers, Providers, Admins)
 -- Password for all demo accounts: password123
--- BCrypt hash: $2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C
+-- BCrypt hash: $2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK
 -- ============================================================================
 
 -- Customers
 INSERT INTO users (user_id, name, email, phone, password_hash, user_type, account_status, is_email_verified, is_phone_verified, preferred_language, profile_image_url, gender, created_at) VALUES
-(1, 'Priya Sharma', 'priya.sharma@email.com', '9876543210', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'EN', 'https://storage.hirelink.in/profiles/user_1.jpg', 'FEMALE', '2025-06-15 10:30:00'),
-(2, 'Rahul Verma', 'rahul.verma@email.com', '9876543211', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'HI', 'https://storage.hirelink.in/profiles/user_2.jpg', 'MALE', '2025-06-20 14:45:00'),
-(3, 'Ananya Iyer', 'ananya.iyer@email.com', '9876543212', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'TA', 'https://storage.hirelink.in/profiles/user_3.jpg', 'FEMALE', '2025-07-01 09:15:00'),
-(4, 'Vikram Singh', 'vikram.singh@email.com', '9876543213', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'EN', 'https://storage.hirelink.in/profiles/user_4.jpg', 'MALE', '2025-07-10 11:00:00'),
-(5, 'Meera Patel', 'meera.patel@email.com', '9876543214', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'GU', 'https://storage.hirelink.in/profiles/user_5.jpg', 'FEMALE', '2025-07-15 16:30:00'),
-(6, 'Amit Kumar', 'amit.kumar@email.com', '9876543215', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'CUSTOMER', 'ACTIVE', FALSE, TRUE, 'HI', NULL, 'MALE', '2025-07-20 08:45:00'),
-(7, 'Sneha Reddy', 'sneha.reddy@email.com', '9876543216', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'TE', 'https://storage.hirelink.in/profiles/user_7.jpg', 'FEMALE', '2025-07-25 13:20:00'),
-(8, 'Arjun Nair', 'arjun.nair@email.com', '9876543217', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'ML', 'https://storage.hirelink.in/profiles/user_8.jpg', 'MALE', '2025-08-01 10:00:00'),
-(9, 'Pooja Gupta', 'pooja.gupta@email.com', '9876543218', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'CUSTOMER', 'PENDING_VERIFICATION', FALSE, FALSE, 'HI', NULL, 'FEMALE', '2025-08-05 15:45:00'),
-(10, 'Rohan Desai', 'rohan.desai@email.com', '9876543219', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'MR', 'https://storage.hirelink.in/profiles/user_10.jpg', 'MALE', '2025-08-10 12:30:00'),
+(1, 'Priya Sharma', 'priya.sharma@email.com', '9876543210', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'EN', 'https://storage.hirelink.in/profiles/user_1.jpg', 'FEMALE', '2025-06-15 10:30:00'),
+(2, 'Rahul Verma', 'rahul.verma@email.com', '9876543211', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'HI', 'https://storage.hirelink.in/profiles/user_2.jpg', 'MALE', '2025-06-20 14:45:00'),
+(3, 'Ananya Iyer', 'ananya.iyer@email.com', '9876543212', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'TA', 'https://storage.hirelink.in/profiles/user_3.jpg', 'FEMALE', '2025-07-01 09:15:00'),
+(4, 'Vikram Singh', 'vikram.singh@email.com', '9876543213', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'EN', 'https://storage.hirelink.in/profiles/user_4.jpg', 'MALE', '2025-07-10 11:00:00'),
+(5, 'Meera Patel', 'meera.patel@email.com', '9876543214', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'GU', 'https://storage.hirelink.in/profiles/user_5.jpg', 'FEMALE', '2025-07-15 16:30:00'),
+(6, 'Amit Kumar', 'amit.kumar@email.com', '9876543215', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'CUSTOMER', 'ACTIVE', FALSE, TRUE, 'HI', NULL, 'MALE', '2025-07-20 08:45:00'),
+(7, 'Sneha Reddy', 'sneha.reddy@email.com', '9876543216', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'TE', 'https://storage.hirelink.in/profiles/user_7.jpg', 'FEMALE', '2025-07-25 13:20:00'),
+(8, 'Arjun Nair', 'arjun.nair@email.com', '9876543217', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'ML', 'https://storage.hirelink.in/profiles/user_8.jpg', 'MALE', '2025-08-01 10:00:00'),
+(9, 'Pooja Gupta', 'pooja.gupta@email.com', '9876543218', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'CUSTOMER', 'PENDING_VERIFICATION', FALSE, FALSE, 'HI', NULL, 'FEMALE', '2025-08-05 15:45:00'),
+(10, 'Rohan Desai', 'rohan.desai@email.com', '9876543219', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'CUSTOMER', 'ACTIVE', TRUE, TRUE, 'MR', 'https://storage.hirelink.in/profiles/user_10.jpg', 'MALE', '2025-08-10 12:30:00'),
 
 -- Service Providers (Users who are also providers)
-(11, 'Ramesh Kumar', 'ramesh.electrician@email.com', '9876543220', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'HI', 'https://storage.hirelink.in/profiles/provider_1.jpg', 'MALE', '2025-05-01 09:00:00'),
-(12, 'Suresh Yadav', 'suresh.plumber@email.com', '9876543221', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'HI', 'https://storage.hirelink.in/profiles/provider_2.jpg', 'MALE', '2025-05-05 10:30:00'),
-(13, 'Mahesh Sharma', 'mahesh.carpenter@email.com', '9876543222', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'EN', 'https://storage.hirelink.in/profiles/provider_3.jpg', 'MALE', '2025-05-10 11:45:00'),
-(14, 'Lakshmi Devi', 'lakshmi.cleaner@email.com', '9876543223', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'TA', 'https://storage.hirelink.in/profiles/provider_4.jpg', 'FEMALE', '2025-05-15 08:15:00'),
-(15, 'Ravi Prasad', 'ravi.painter@email.com', '9876543224', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'TE', 'https://storage.hirelink.in/profiles/provider_5.jpg', 'MALE', '2025-05-20 14:00:00'),
-(16, 'Gopal Menon', 'gopal.ac@email.com', '9876543225', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'ML', 'https://storage.hirelink.in/profiles/provider_6.jpg', 'MALE', '2025-05-25 09:30:00'),
-(17, 'Vijay Mason', 'vijay.mason@email.com', '9876543226', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'HI', 'https://storage.hirelink.in/profiles/provider_7.jpg', 'MALE', '2025-06-01 10:00:00'),
-(18, 'Santosh Electric', 'santosh.electric@email.com', '9876543227', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'MR', 'https://storage.hirelink.in/profiles/provider_8.jpg', 'MALE', '2025-06-05 11:15:00'),
-(19, 'Kiran Appliance', 'kiran.appliance@email.com', '9876543228', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'PROVIDER', 'PENDING_VERIFICATION', FALSE, TRUE, 'KN', NULL, 'MALE', '2025-06-10 15:30:00'),
-(20, 'Prakash Welder', 'prakash.welder@email.com', '9876543229', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'BN', 'https://storage.hirelink.in/profiles/provider_10.jpg', 'MALE', '2025-06-15 12:00:00'),
+(11, 'Ramesh Kumar', 'ramesh.electrician@email.com', '9876543220', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'HI', 'https://storage.hirelink.in/profiles/provider_1.jpg', 'MALE', '2025-05-01 09:00:00'),
+(12, 'Suresh Yadav', 'suresh.plumber@email.com', '9876543221', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'HI', 'https://storage.hirelink.in/profiles/provider_2.jpg', 'MALE', '2025-05-05 10:30:00'),
+(13, 'Mahesh Sharma', 'mahesh.carpenter@email.com', '9876543222', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'EN', 'https://storage.hirelink.in/profiles/provider_3.jpg', 'MALE', '2025-05-10 11:45:00'),
+(14, 'Lakshmi Devi', 'lakshmi.cleaner@email.com', '9876543223', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'TA', 'https://storage.hirelink.in/profiles/provider_4.jpg', 'FEMALE', '2025-05-15 08:15:00'),
+(15, 'Ravi Prasad', 'ravi.painter@email.com', '9876543224', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'TE', 'https://storage.hirelink.in/profiles/provider_5.jpg', 'MALE', '2025-05-20 14:00:00'),
+(16, 'Gopal Menon', 'gopal.ac@email.com', '9876543225', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'ML', 'https://storage.hirelink.in/profiles/provider_6.jpg', 'MALE', '2025-05-25 09:30:00'),
+(17, 'Vijay Mason', 'vijay.mason@email.com', '9876543226', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'HI', 'https://storage.hirelink.in/profiles/provider_7.jpg', 'MALE', '2025-06-01 10:00:00'),
+(18, 'Santosh Electric', 'santosh.electric@email.com', '9876543227', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'MR', 'https://storage.hirelink.in/profiles/provider_8.jpg', 'MALE', '2025-06-05 11:15:00'),
+(19, 'Kiran Appliance', 'kiran.appliance@email.com', '9876543228', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'PROVIDER', 'PENDING_VERIFICATION', FALSE, TRUE, 'KN', NULL, 'MALE', '2025-06-10 15:30:00'),
+(20, 'Prakash Welder', 'prakash.welder@email.com', '9876543229', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'PROVIDER', 'ACTIVE', TRUE, TRUE, 'BN', 'https://storage.hirelink.in/profiles/provider_10.jpg', 'MALE', '2025-06-15 12:00:00'),
 
 -- Admin Users
-(21, 'Admin User', 'admin@hirelink.in', '9876543230', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'ADMIN', 'ACTIVE', TRUE, TRUE, 'EN', 'https://storage.hirelink.in/profiles/admin_1.jpg', 'MALE', '2025-01-01 00:00:00'),
-(22, 'Super Admin', 'superadmin@hirelink.in', '9876543231', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4y3yD3.F6.2yJZ5C', 'SUPER_ADMIN', 'ACTIVE', TRUE, TRUE, 'EN', 'https://storage.hirelink.in/profiles/admin_2.jpg', 'FEMALE', '2025-01-01 00:00:00')
+(21, 'Admin User', 'admin@hirelink.in', '9876543230', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'ADMIN', 'ACTIVE', TRUE, TRUE, 'EN', 'https://storage.hirelink.in/profiles/admin_1.jpg', 'MALE', '2025-01-01 00:00:00'),
+(22, 'Super Admin', 'superadmin@hirelink.in', '9876543231', '$2a$12$b/tFjZChShbXoKZCK2YqYuKr8a501ns3RXwpTUE7bB3yySv.e2ePK', 'SUPER_ADMIN', 'ACTIVE', TRUE, TRUE, 'EN', 'https://storage.hirelink.in/profiles/admin_2.jpg', 'FEMALE', '2025-01-01 00:00:00')
 
 ON DUPLICATE KEY UPDATE name=VALUES(name);
 
