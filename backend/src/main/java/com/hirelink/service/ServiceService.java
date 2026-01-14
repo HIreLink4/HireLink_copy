@@ -51,8 +51,9 @@ public class ServiceService {
         return mapToServiceListResponse(servicePage);
     }
 
+    @Transactional(readOnly = true)
     public ServiceDTO.ServiceResponse getServiceById(Long id) {
-        Service service = serviceRepository.findById(id)
+        Service service = serviceRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found: " + id));
         return mapToServiceResponse(service);
     }
@@ -71,6 +72,7 @@ public class ServiceService {
         return mapToServiceListResponse(servicePage);
     }
 
+    @Transactional(readOnly = true)
     public List<ServiceDTO.ServiceResponse> getFeaturedServices() {
         List<Service> services = serviceRepository.findByIsFeaturedTrueAndIsActiveTrue();
         return services.stream()
@@ -147,13 +149,46 @@ public class ServiceService {
         ServiceProvider provider = service.getProvider();
         ServiceCategory category = service.getCategory();
 
+        // Build provider summary with null safety
+        ServiceDTO.ProviderSummary providerSummary = null;
+        if (provider != null) {
+            String providerName = "Unknown";
+            String profileImageUrl = null;
+            if (provider.getUser() != null) {
+                providerName = provider.getUser().getName() != null ? provider.getUser().getName() : "Unknown";
+                profileImageUrl = provider.getUser().getProfileImageUrl();
+            }
+            providerSummary = ServiceDTO.ProviderSummary.builder()
+                    .providerId(provider.getProviderId())
+                    .businessName(provider.getBusinessName())
+                    .providerName(providerName)
+                    .profileImageUrl(profileImageUrl)
+                    .averageRating(provider.getAverageRating())
+                    .totalReviews(provider.getTotalReviews())
+                    .completedBookings(provider.getCompletedBookings())
+                    .isAvailable(provider.getIsAvailable())
+                    .availabilityStatus(provider.getAvailabilityStatus() != null ? provider.getAvailabilityStatus().name() : "OFFLINE")
+                    .build();
+        }
+
+        // Build category summary with null safety
+        ServiceDTO.CategorySummary categorySummary = null;
+        if (category != null) {
+            categorySummary = ServiceDTO.CategorySummary.builder()
+                    .categoryId(category.getCategoryId())
+                    .categoryName(category.getCategoryName())
+                    .categorySlug(category.getCategorySlug())
+                    .categoryIcon(category.getCategoryIcon())
+                    .build();
+        }
+
         return ServiceDTO.ServiceResponse.builder()
                 .serviceId(service.getServiceId())
                 .serviceName(service.getServiceName())
                 .serviceDescription(service.getServiceDescription())
                 .serviceHighlights(highlights)
                 .basePrice(service.getBasePrice())
-                .priceType(service.getPriceType().name())
+                .priceType(service.getPriceType() != null ? service.getPriceType().name() : "FIXED")
                 .minPrice(service.getMinPrice())
                 .maxPrice(service.getMaxPrice())
                 .estimatedDurationMinutes(service.getEstimatedDurationMinutes())
@@ -166,23 +201,8 @@ public class ServiceService {
                 .timesBooked(service.getTimesBooked())
                 .averageRating(service.getAverageRating())
                 .totalReviews(service.getTotalReviews())
-                .provider(ServiceDTO.ProviderSummary.builder()
-                        .providerId(provider.getProviderId())
-                        .businessName(provider.getBusinessName())
-                        .providerName(provider.getUser().getName())
-                        .profileImageUrl(provider.getUser().getProfileImageUrl())
-                        .averageRating(provider.getAverageRating())
-                        .totalReviews(provider.getTotalReviews())
-                        .completedBookings(provider.getCompletedBookings())
-                        .isAvailable(provider.getIsAvailable())
-                        .availabilityStatus(provider.getAvailabilityStatus().name())
-                        .build())
-                .category(ServiceDTO.CategorySummary.builder()
-                        .categoryId(category.getCategoryId())
-                        .categoryName(category.getCategoryName())
-                        .categorySlug(category.getCategorySlug())
-                        .categoryIcon(category.getCategoryIcon())
-                        .build())
+                .provider(providerSummary)
+                .category(categorySummary)
                 .build();
     }
 }
