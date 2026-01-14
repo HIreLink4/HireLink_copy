@@ -7,7 +7,9 @@ import com.hirelink.repository.ServiceCategoryRepository;
 import com.hirelink.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,14 +41,16 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public CategoryDTO.CategoryResponse getCategoryBySlug(String slug) {
         ServiceCategory category = categoryRepository.findByCategorySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + slug));
         return mapToCategoryResponseWithSubcategories(category);
     }
 
+    @Transactional(readOnly = true)
     public CategoryDTO.CategoryResponse getCategoryById(Long id) {
-        ServiceCategory category = categoryRepository.findById(id)
+        ServiceCategory category = categoryRepository.findByIdWithSubcategories(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + id));
         return mapToCategoryResponseWithSubcategories(category);
     }
@@ -82,12 +86,17 @@ public class CategoryService {
     private CategoryDTO.CategoryResponse mapToCategoryResponseWithSubcategories(ServiceCategory category) {
         CategoryDTO.CategoryResponse response = mapToCategoryResponse(category);
         
-        if (category.getSubCategories() != null && !category.getSubCategories().isEmpty()) {
-            List<CategoryDTO.CategoryResponse> subCategories = category.getSubCategories().stream()
-                    .filter(ServiceCategory::getIsActive)
-                    .map(this::mapToCategoryResponse)
-                    .collect(Collectors.toList());
-            response.setSubCategories(subCategories);
+        try {
+            if (category.getSubCategories() != null && !category.getSubCategories().isEmpty()) {
+                List<CategoryDTO.CategoryResponse> subCategories = category.getSubCategories().stream()
+                        .filter(sub -> sub.getIsActive() != null && sub.getIsActive())
+                        .map(this::mapToCategoryResponse)
+                        .collect(Collectors.toList());
+                response.setSubCategories(subCategories);
+            }
+        } catch (Exception e) {
+            // SubCategories not loaded, use empty list
+            response.setSubCategories(Collections.emptyList());
         }
         
         return response;
