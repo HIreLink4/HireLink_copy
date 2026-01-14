@@ -1,0 +1,270 @@
+package com.hirelink.service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hirelink.dto.ProviderDTO;
+import com.hirelink.dto.ServiceDTO;
+import com.hirelink.entity.Review;
+import com.hirelink.entity.ServiceProvider;
+import com.hirelink.exception.ResourceNotFoundException;
+import com.hirelink.repository.ReviewRepository;
+import com.hirelink.repository.ServiceProviderRepository;
+import com.hirelink.repository.ServiceRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@org.springframework.stereotype.Service
+@RequiredArgsConstructor
+public class ProviderService {
+
+    private final ServiceProviderRepository providerRepository;
+    private final ServiceRepository serviceRepository;
+    private final ReviewRepository reviewRepository;
+    private final ObjectMapper objectMapper;
+    private final ServiceService serviceService;
+
+    public ProviderDTO.ProviderResponse getProviderById(Long providerId) {
+        ServiceProvider provider = providerRepository.findById(providerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Provider not found: " + providerId));
+        return mapToProviderResponse(provider, true);
+    }
+
+    public ProviderDTO.ProviderResponse getProviderByUserId(Long userId) {
+        ServiceProvider provider = providerRepository.findByUserUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Provider not found for user: " + userId));
+        return mapToProviderResponse(provider, true);
+    }
+
+    public ProviderDTO.ProviderListResponse getProvidersByCategory(Long categoryId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ServiceProvider> providerPage = providerRepository.findByCategoryId(categoryId, pageable);
+        return mapToProviderListResponse(providerPage);
+    }
+
+    public ProviderDTO.ProviderListResponse getActiveProviders(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ServiceProvider> providerPage = providerRepository.findActiveProviders(pageable);
+        return mapToProviderListResponse(providerPage);
+    }
+
+    public ProviderDTO.ProviderListResponse getTopRatedProviders(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ServiceProvider> providerPage = providerRepository.findTopRatedProviders(pageable);
+        return mapToProviderListResponse(providerPage);
+    }
+
+    public List<ProviderDTO.ProviderSummary> getFeaturedProviders() {
+        List<ServiceProvider> providers = providerRepository.findByIsFeaturedTrue();
+        return providers.stream()
+                .map(this::mapToProviderSummary)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProviderDTO.ProviderSummary> getNearbyProviders(String pincode) {
+        List<ServiceProvider> providers = providerRepository.findByPincodeAndAvailable(pincode);
+        return providers.stream()
+                .map(this::mapToProviderSummary)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ProviderDTO.ProviderResponse updateProvider(Long providerId, ProviderDTO.UpdateProviderRequest request) {
+        ServiceProvider provider = providerRepository.findById(providerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Provider not found: " + providerId));
+
+        if (request.getBusinessName() != null) {
+            provider.setBusinessName(request.getBusinessName());
+        }
+        if (request.getBusinessDescription() != null) {
+            provider.setBusinessDescription(request.getBusinessDescription());
+        }
+        if (request.getTagline() != null) {
+            provider.setTagline(request.getTagline());
+        }
+        if (request.getExperienceYears() != null) {
+            provider.setExperienceYears(request.getExperienceYears());
+        }
+        if (request.getSpecializations() != null) {
+            try {
+                provider.setSpecializations(objectMapper.writeValueAsString(request.getSpecializations()));
+            } catch (JsonProcessingException e) {
+                // ignore
+            }
+        }
+        if (request.getBasePincode() != null) {
+            provider.setBasePincode(request.getBasePincode());
+        }
+        if (request.getServiceRadiusKm() != null) {
+            provider.setServiceRadiusKm(request.getServiceRadiusKm());
+        }
+
+        // Calculate profile completion
+        int completion = calculateProfileCompletion(provider);
+        provider.setProfileCompletionPercentage(completion);
+
+        provider = providerRepository.save(provider);
+        return mapToProviderResponse(provider, false);
+    }
+
+    @Transactional
+    public void updateAvailability(Long providerId, boolean available, String status) {
+        ServiceProvider provider = providerRepository.findById(providerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Provider not found: " + providerId));
+
+        provider.setIsAvailable(available);
+        if (status != null) {
+            provider.setAvailabilityStatus(ServiceProvider.AvailabilityStatus.valueOf(status));
+        } else {
+            provider.setAvailabilityStatus(available ? 
+                    ServiceProvider.AvailabilityStatus.ONLINE : 
+                    ServiceProvider.AvailabilityStatus.OFFLINE);
+        }
+
+        providerRepository.save(provider);
+    }
+
+    private int calculateProfileCompletion(ServiceProvider provider) {
+        int score = 0;
+        int total = 10;
+
+        if (provider.getBusinessName() != null && !provider.getBusinessName().isEmpty()) score++;
+        if (provider.getBusinessDescription() != null && !provider.getBusinessDescription().isEmpty()) score++;
+        if (provider.getTagline() != null && !provider.getTagline().isEmpty()) score++;
+        if (provider.getExperienceYears() != null && provider.getExperienceYears() > 0) score++;
+        if (provider.getSpecializations() != null && !provider.getSpecializations().isEmpty()) score++;
+        if (provider.getBasePincode() != null && !provider.getBasePincode().isEmpty()) score++;
+        if (provider.getUser().getProfileImageUrl() != null) score++;
+        if (provider.getKycStatus() == ServiceProvider.KycStatus.VERIFIED) score++;
+        if (provider.getServices() != null && !provider.getServices().isEmpty()) score += 2;
+
+        return (score * 100) / total;
+    }
+
+    private ProviderDTO.ProviderListResponse mapToProviderListResponse(Page<ServiceProvider> providerPage) {
+        List<ProviderDTO.ProviderSummary> providers = providerPage.getContent().stream()
+                .map(this::mapToProviderSummary)
+                .collect(Collectors.toList());
+
+        return ProviderDTO.ProviderListResponse.builder()
+                .providers(providers)
+                .page(providerPage.getNumber())
+                .size(providerPage.getSize())
+                .total(providerPage.getTotalElements())
+                .totalPages(providerPage.getTotalPages())
+                .build();
+    }
+
+    private ProviderDTO.ProviderSummary mapToProviderSummary(ServiceProvider provider) {
+        List<String> categories = Collections.emptyList();
+        if (provider.getServices() != null) {
+            categories = provider.getServices().stream()
+                    .map(s -> s.getCategory().getCategoryName())
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+
+        BigDecimal startingPrice = null;
+        if (provider.getServices() != null && !provider.getServices().isEmpty()) {
+            startingPrice = provider.getServices().stream()
+                    .filter(s -> s.getIsActive())
+                    .map(s -> s.getBasePrice())
+                    .min(BigDecimal::compareTo)
+                    .orElse(null);
+        }
+
+        return ProviderDTO.ProviderSummary.builder()
+                .providerId(provider.getProviderId())
+                .businessName(provider.getBusinessName())
+                .providerName(provider.getUser().getName())
+                .profileImageUrl(provider.getUser().getProfileImageUrl())
+                .experienceYears(provider.getExperienceYears())
+                .basePincode(provider.getBasePincode())
+                .averageRating(provider.getAverageRating())
+                .totalReviews(provider.getTotalReviews())
+                .completedBookings(provider.getCompletedBookings())
+                .isAvailable(provider.getIsAvailable())
+                .availabilityStatus(provider.getAvailabilityStatus().name())
+                .isFeatured(provider.getIsFeatured())
+                .startingPrice(startingPrice)
+                .serviceCategories(categories)
+                .build();
+    }
+
+    private ProviderDTO.ProviderResponse mapToProviderResponse(ServiceProvider provider, boolean includeServices) {
+        List<String> specializations = Collections.emptyList();
+        if (provider.getSpecializations() != null) {
+            try {
+                specializations = objectMapper.readValue(provider.getSpecializations(), new TypeReference<List<String>>() {});
+            } catch (JsonProcessingException e) {
+                // ignore
+            }
+        }
+
+        List<String> certifications = Collections.emptyList();
+        if (provider.getCertifications() != null) {
+            try {
+                certifications = objectMapper.readValue(provider.getCertifications(), new TypeReference<List<String>>() {});
+            } catch (JsonProcessingException e) {
+                // ignore
+            }
+        }
+
+        // Get recent reviews
+        List<Review> reviews = reviewRepository.findRecentReviews(provider.getProviderId(), PageRequest.of(0, 5));
+        List<ProviderDTO.ReviewSummary> reviewSummaries = reviews.stream()
+                .map(review -> ProviderDTO.ReviewSummary.builder()
+                        .reviewId(review.getReviewId())
+                        .reviewerName(review.getReviewer().getName())
+                        .reviewerImage(review.getReviewer().getProfileImageUrl())
+                        .overallRating(review.getOverallRating())
+                        .reviewText(review.getReviewText())
+                        .createdAt(review.getCreatedAt().format(DateTimeFormatter.ISO_DATE))
+                        .build())
+                .collect(Collectors.toList());
+
+        // Get services if requested
+        List<ServiceDTO.ServiceResponse> services = Collections.emptyList();
+        if (includeServices) {
+            ServiceDTO.ServiceListResponse serviceList = serviceService.getProviderServices(provider.getProviderId(), 0, 20);
+            services = serviceList.getServices();
+        }
+
+        return ProviderDTO.ProviderResponse.builder()
+                .providerId(provider.getProviderId())
+                .userId(provider.getUser().getUserId())
+                .businessName(provider.getBusinessName())
+                .businessDescription(provider.getBusinessDescription())
+                .tagline(provider.getTagline())
+                .providerName(provider.getUser().getName())
+                .phone(provider.getUser().getPhone())
+                .email(provider.getUser().getEmail())
+                .profileImageUrl(provider.getUser().getProfileImageUrl())
+                .experienceYears(provider.getExperienceYears())
+                .specializations(specializations)
+                .certifications(certifications)
+                .basePincode(provider.getBasePincode())
+                .serviceRadiusKm(provider.getServiceRadiusKm())
+                .kycStatus(provider.getKycStatus().name())
+                .averageRating(provider.getAverageRating())
+                .totalReviews(provider.getTotalReviews())
+                .totalBookings(provider.getTotalBookings())
+                .completedBookings(provider.getCompletedBookings())
+                .completionRate(provider.getCompletionRate())
+                .isAvailable(provider.getIsAvailable())
+                .availabilityStatus(provider.getAvailabilityStatus().name())
+                .isFeatured(provider.getIsFeatured())
+                .services(services)
+                .recentReviews(reviewSummaries)
+                .build();
+    }
+}
