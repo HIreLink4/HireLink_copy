@@ -3,14 +3,25 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useAuthStore } from '../../context/authStore'
 import toast from 'react-hot-toast'
-import { EyeIcon, EyeSlashIcon, PhoneIcon, LockClosedIcon } from '@heroicons/react/24/outline'
+import { EyeIcon, EyeSlashIcon, PhoneIcon, LockClosedIcon, UserIcon, WrenchScrewdriverIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
+
+// ============================================
+// DEMO ACCOUNTS - Comment out in production
+// ============================================
+const DEMO_ACCOUNTS = [
+  { type: 'Customer', phone: '9876543210', password: 'password123', icon: UserIcon, color: 'blue' },
+  { type: 'Provider', phone: '9876543220', password: 'password123', icon: WrenchScrewdriverIcon, color: 'emerald' },
+  { type: 'Admin', phone: '9876543230', password: 'password123', icon: ShieldCheckIcon, color: 'purple' },
+]
+// ============================================
 
 export default function Login() {
   const navigate = useNavigate()
   const { login, isLoading, error, clearError } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
+  const [loggingInAs, setLoggingInAs] = useState(null)
   
-  const { register, handleSubmit, formState: { errors } } = useForm()
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm()
 
   const onSubmit = async (data) => {
     clearError()
@@ -22,6 +33,27 @@ export default function Login() {
     } else {
       toast.error(result.error)
     }
+    setLoggingInAs(null)
+  }
+
+  // Demo login handler - auto-fills and submits
+  const handleDemoLogin = async (account) => {
+    clearError()
+    setLoggingInAs(account.type)
+    setValue('phone', account.phone)
+    setValue('password', account.password)
+    
+    // Small delay to show the auto-fill, then login
+    setTimeout(async () => {
+      const result = await login(account.phone, account.password)
+      if (result.success) {
+        toast.success(`Logged in as ${account.type}!`)
+        navigate('/')
+      } else {
+        toast.error(result.error)
+      }
+      setLoggingInAs(null)
+    }, 300)
   }
 
   return (
@@ -149,31 +181,62 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Demo Credentials */}
-      <div className="mt-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-        <p className="text-sm font-semibold text-blue-800 mb-3 flex items-center gap-2">
-          <span className="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-          Demo Credentials
+      {/* ============================================ */}
+      {/* DEMO ACCOUNTS - Comment out in production */}
+      {/* ============================================ */}
+      <div className="mt-8 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
+        <p className="text-sm font-semibold text-amber-800 mb-3 flex items-center gap-2">
+          <span className="inline-block w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+          Quick Demo Login
         </p>
-        <div className="space-y-2 text-xs">
-          <div className="flex justify-between items-center p-2 bg-white/60 rounded-lg">
-            <span className="text-gray-600">Customer:</span>
-            <span className="font-mono text-gray-800">9876543210</span>
-          </div>
-          <div className="flex justify-between items-center p-2 bg-white/60 rounded-lg">
-            <span className="text-gray-600">Provider:</span>
-            <span className="font-mono text-gray-800">9876543220</span>
-          </div>
-          <div className="flex justify-between items-center p-2 bg-white/60 rounded-lg">
-            <span className="text-gray-600">Admin:</span>
-            <span className="font-mono text-gray-800">9876543230</span>
-          </div>
-          <div className="flex justify-between items-center p-2 bg-amber-50 rounded-lg border border-amber-200">
-            <span className="text-amber-700">Password:</span>
-            <span className="font-mono text-amber-800 font-semibold">password123</span>
-          </div>
+        <p className="text-xs text-amber-600 mb-3">Click to auto-login as any account:</p>
+        <div className="grid grid-cols-3 gap-2">
+          {DEMO_ACCOUNTS.map((account) => {
+            const Icon = account.icon
+            const isLoggingIn = loggingInAs === account.type
+            return (
+              <button
+                key={account.type}
+                type="button"
+                onClick={() => handleDemoLogin(account)}
+                disabled={isLoading || loggingInAs}
+                className={`
+                  p-3 rounded-xl border-2 transition-all text-center
+                  ${account.color === 'blue' ? 'border-blue-200 bg-blue-50 hover:bg-blue-100 hover:border-blue-300' : ''}
+                  ${account.color === 'emerald' ? 'border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-300' : ''}
+                  ${account.color === 'purple' ? 'border-purple-200 bg-purple-50 hover:bg-purple-100 hover:border-purple-300' : ''}
+                  ${isLoggingIn ? 'ring-2 ring-offset-2 ring-amber-400' : ''}
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                `}
+              >
+                {isLoggingIn ? (
+                  <svg className="animate-spin h-5 w-5 mx-auto mb-1 text-amber-600" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                ) : (
+                  <Icon className={`h-5 w-5 mx-auto mb-1 ${
+                    account.color === 'blue' ? 'text-blue-600' : 
+                    account.color === 'emerald' ? 'text-emerald-600' : 
+                    'text-purple-600'
+                  }`} />
+                )}
+                <span className={`text-xs font-medium ${
+                  account.color === 'blue' ? 'text-blue-700' : 
+                  account.color === 'emerald' ? 'text-emerald-700' : 
+                  'text-purple-700'
+                }`}>
+                  {account.type}
+                </span>
+              </button>
+            )
+          })}
         </div>
+        <p className="text-xs text-amber-500 mt-3 text-center">
+          Password for all: <span className="font-mono font-semibold">password123</span>
+        </p>
       </div>
+      {/* ============================================ */}
     </div>
   )
 }
