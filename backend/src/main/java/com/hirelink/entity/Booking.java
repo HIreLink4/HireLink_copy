@@ -75,6 +75,12 @@ public class Booking {
     @Column(name = "service_longitude", precision = 11, scale = 8)
     private BigDecimal serviceLongitude;
 
+    @Column(name = "service_city", length = 100)
+    private String serviceCity;
+
+    @Column(name = "service_state", length = 100)
+    private String serviceState;
+
     @Column(name = "issue_title", length = 255)
     private String issueTitle;
 

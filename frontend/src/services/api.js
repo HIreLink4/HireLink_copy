@@ -57,10 +57,19 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
+  // Password-based auth (phone/email + password)
   register: (data) => api.post('/auth/register', data),
-  login: (data) => api.post('/auth/login', data),
+  login: (data) => api.post('/auth/login', data),           // { phone/email, password }
   refresh: (refreshToken) => api.post('/auth/refresh', { refreshToken }),
   changePassword: (data) => api.post('/auth/change-password', data),
+  setPassword: (data) => api.post('/auth/set-password', data),  // { password } - for verified users
+  
+  // OTP-based authentication
+  sendOtp: (data) => api.post('/auth/send-otp', data),      // { phone } or { email }
+  verifyOtp: (data) => api.post('/auth/verify-otp', data),  // { phone/email, otp, name?, userType? }
+  
+  // Google OAuth
+  googleLogin: (data) => api.post('/auth/google', data),
 }
 
 // Categories API
@@ -86,6 +95,10 @@ export const providersAPI = {
   getById: (id) => api.get(`/providers/${id}`),
   getServices: (id, params) => api.get(`/providers/${id}/services`, { params }),
   getNearby: (pincode) => api.get('/providers/nearby', { params: { pincode } }),
+  getNearbyByLocation: (lat, lng, radiusKm = 10, categoryId = null) => 
+    api.get('/providers/nearby/location', { 
+      params: { lat, lng, radiusKm, ...(categoryId && { categoryId }) } 
+    }),
   getFeatured: () => api.get('/providers/featured'),
   getTopRated: (params) => api.get('/providers/top-rated', { params }),
   getByCategory: (categoryId, params) => api.get(`/providers/category/${categoryId}`, { params }),
@@ -104,6 +117,13 @@ export const bookingsAPI = {
     reason 
   }),
   addReview: (id, data) => api.post(`/bookings/${id}/review`, data),
+  search: (keyword, params) => api.get('/bookings/search', { params: { keyword, ...params } }),
+}
+
+// Search API (combined search)
+export const searchAPI = {
+  services: (query, params) => api.get('/services/search', { params: { query, ...params } }),
+  bookings: (keyword, params) => api.get('/bookings/search', { params: { keyword, ...params } }),
 }
 
 // User API

@@ -31,13 +31,17 @@ public class AuthDTO {
         private String userType; // CUSTOMER or PROVIDER
     }
 
+    /**
+     * Login with phone/email and password.
+     * Provide either phone OR email, not both.
+     */
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class LoginRequest {
-        @NotBlank(message = "Phone is required")
-        private String phone;
+        private String phone;   // Login with phone + password
+        private String email;   // Login with email + password
 
         @NotBlank(message = "Password is required")
         private String password;
@@ -91,5 +95,93 @@ public class AuthDTO {
         private String accountStatus;
         private Boolean isEmailVerified;
         private Boolean isPhoneVerified;
+        private String authProvider;
+        private Boolean hasPassword;  // True if user has set a password
+    }
+
+    /**
+     * Request to set password for OTP-verified users.
+     * Users who verified via OTP can set a password for future logins.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SetPasswordRequest {
+        @NotBlank(message = "Password is required")
+        @Size(min = 8, message = "Password must be at least 8 characters")
+        private String password;
+    }
+
+    // ============================================
+    // OTP Authentication DTOs
+    // ============================================
+
+    /**
+     * Request to send OTP to phone or email.
+     * Provide either phone OR email, not both.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SendOtpRequest {
+        private String phone;   // For SMS OTP
+        private String email;   // For Email OTP
+    }
+
+    /**
+     * Request to verify OTP and login.
+     * Provide the same identifier (phone or email) used in SendOtpRequest.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class VerifyOtpRequest {
+        private String phone;   // For SMS OTP
+        private String email;   // For Email OTP
+        
+        @NotBlank(message = "OTP is required")
+        private String otp;
+        
+        // Optional: for new users
+        private String name;
+        private String userType;  // CUSTOMER or PROVIDER
+    }
+
+    // ============================================
+    // Google OAuth DTOs
+    // ============================================
+
+    /**
+     * Request for Google OAuth login.
+     * Contains user info from Google's OAuth response.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GoogleLoginRequest {
+        @NotBlank(message = "Google ID is required")
+        private String googleId;
+        
+        @NotBlank(message = "Email is required")
+        private String email;
+        
+        private String name;
+        private String imageUrl;
+        private String userType;  // CUSTOMER or PROVIDER (for new users)
+    }
+
+    /**
+     * Simple message response for OTP sending
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MessageResponse {
+        private String message;
     }
 }

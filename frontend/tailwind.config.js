@@ -7,33 +7,65 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Primary colors (Blue - Main brand color)
         primary: {
-          50: '#f0f7ff',
-          100: '#e0efff',
-          200: '#b9dfff',
-          300: '#7cc4ff',
-          400: '#36a5ff',
-          500: '#0c87f0',
-          600: '#006acc',
-          700: '#0055a5',
-          800: '#004988',
-          900: '#003d70',
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',     // Main primary
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
         },
+        // Secondary colors (Slate Gray)
+        secondary: {
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',     // Main secondary
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
+        },
+        // Accent colors (Amber - For highlights/CTAs)
         accent: {
-          50: '#fdf4f3',
-          100: '#fce8e6',
-          200: '#fad5d1',
-          300: '#f5b5ae',
-          400: '#ed8b80',
-          500: '#e16054',
-          600: '#cd4538',
-          700: '#ac372c',
-          800: '#8f3129',
-          900: '#772f28',
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b',     // Main accent
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
         },
       },
       fontFamily: {
-        sans: ['DM Sans', 'system-ui', 'sans-serif'],
+        sans: ['DM Sans', 'Inter', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'primary': '0 4px 14px 0 rgba(37, 99, 235, 0.25)',
+        'primary-lg': '0 10px 25px 0 rgba(37, 99, 235, 0.3)',
+        'accent': '0 4px 14px 0 rgba(245, 158, 11, 0.25)',
+        'accent-lg': '0 10px 25px 0 rgba(245, 158, 11, 0.3)',
+        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+      },
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+        'gradient-primary-dark': 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 50%, #2563eb 100%)',
+        'gradient-accent': 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
+        'gradient-hero': 'linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%)',
+      },
+      borderRadius: {
+        '4xl': '2rem',
       },
     },
   },

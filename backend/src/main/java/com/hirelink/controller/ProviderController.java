@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -31,6 +32,7 @@ public class ProviderController {
     private final BookingService bookingService;
     private final ServiceService serviceService;
     private final ServiceProviderRepository providerRepository;
+    private final com.hirelink.service.LocationService locationService;
 
     @GetMapping("/{id}")
     @Operation(summary = "Get provider by ID")
@@ -62,6 +64,18 @@ public class ProviderController {
     public ResponseEntity<ApiResponse<List<ProviderDTO.ProviderSummary>>> getNearbyProviders(
             @RequestParam String pincode) {
         List<ProviderDTO.ProviderSummary> providers = providerService.getNearbyProviders(pincode);
+        return ResponseEntity.ok(ApiResponse.success(providers));
+    }
+
+    @GetMapping("/nearby/location")
+    @Operation(summary = "Get nearby providers by coordinates")
+    public ResponseEntity<ApiResponse<List<ProviderDTO.ProviderSummary>>> getNearbyProvidersByLocation(
+            @RequestParam BigDecimal lat,
+            @RequestParam BigDecimal lng,
+            @RequestParam(defaultValue = "10") Integer radiusKm,
+            @RequestParam(required = false) Long categoryId) {
+        List<ProviderDTO.ProviderSummary> providers = providerService.getNearbyProvidersByLocation(
+                lat, lng, radiusKm, categoryId);
         return ResponseEntity.ok(ApiResponse.success(providers));
     }
 

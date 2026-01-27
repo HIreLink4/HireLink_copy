@@ -28,6 +28,9 @@ public class ProviderDTO {
         private List<String> specializations;
         private List<String> certifications;
         private String basePincode;
+        private String baseAddress;
+        private BigDecimal baseLatitude;
+        private BigDecimal baseLongitude;
         private Integer serviceRadiusKm;
         private String kycStatus;
         private BigDecimal averageRating;
@@ -65,6 +68,9 @@ public class ProviderDTO {
         private String profileImageUrl;
         private Integer experienceYears;
         private String basePincode;
+        private BigDecimal baseLatitude;
+        private BigDecimal baseLongitude;
+        private Integer serviceRadiusKm;
         private BigDecimal averageRating;
         private Integer totalReviews;
         private Integer completedBookings;

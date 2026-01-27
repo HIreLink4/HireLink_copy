@@ -32,9 +32,11 @@ public class ProviderService {
     private final ReviewRepository reviewRepository;
     private final ObjectMapper objectMapper;
     private final ServiceService serviceService;
+    private final LocationService locationService;
 
+    @Transactional(readOnly = true)
     public ProviderDTO.ProviderResponse getProviderById(Long providerId) {
-        ServiceProvider provider = providerRepository.findById(providerId)
+        ServiceProvider provider = providerRepository.findByIdWithDetails(providerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Provider not found: " + providerId));
         return mapToProviderResponse(provider, true);
     }
@@ -75,6 +77,38 @@ public class ProviderService {
     public List<ProviderDTO.ProviderSummary> getNearbyProviders(String pincode) {
         List<ServiceProvider> providers = providerRepository.findByPincodeAndAvailable(pincode);
         return providers.stream()
+                .map(this::mapToProviderSummary)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProviderDTO.ProviderSummary> getNearbyProvidersByLocation(
+            BigDecimal latitude, BigDecimal longitude, Integer radiusKm, Long categoryId) {
+        
+        // Get bounding box for initial filter
+        LocationService.BoundingBox box = locationService.getBoundingBox(latitude, longitude, radiusKm);
+        
+        List<ServiceProvider> providers;
+        if (categoryId != null) {
+            providers = providerRepository.findProvidersInAreaByCategory(
+                    box.minLatBD(), box.maxLatBD(), box.minLonBD(), box.maxLonBD(), categoryId);
+        } else {
+            providers = providerRepository.findProvidersInArea(
+                    box.minLatBD(), box.maxLatBD(), box.minLonBD(), box.maxLonBD());
+        }
+        
+        // Filter by exact distance and sort by distance
+        return providers.stream()
+                .filter(p -> p.getBaseLatitude() != null && p.getBaseLongitude() != null)
+                .filter(p -> locationService.isWithinRadius(
+                        latitude, longitude, p.getBaseLatitude(), p.getBaseLongitude(), radiusKm))
+                .sorted((p1, p2) -> {
+                    double d1 = locationService.calculateDistance(latitude, longitude, 
+                            p1.getBaseLatitude(), p1.getBaseLongitude());
+                    double d2 = locationService.calculateDistance(latitude, longitude, 
+                            p2.getBaseLatitude(), p2.getBaseLongitude());
+                    return Double.compare(d1, d2);
+                })
                 .map(this::mapToProviderSummary)
                 .collect(Collectors.toList());
     }
@@ -206,6 +240,9 @@ public class ProviderService {
                 .profileImageUrl(profileImageUrl)
                 .experienceYears(provider.getExperienceYears())
                 .basePincode(provider.getBasePincode())
+                .baseLatitude(provider.getBaseLatitude())
+                .baseLongitude(provider.getBaseLongitude())
+                .serviceRadiusKm(provider.getServiceRadiusKm())
                 .averageRating(provider.getAverageRating())
                 .totalReviews(provider.getTotalReviews())
                 .completedBookings(provider.getCompletedBookings())
@@ -270,6 +307,9 @@ public class ProviderService {
                 .specializations(specializations)
                 .certifications(certifications)
                 .basePincode(provider.getBasePincode())
+                .baseAddress(provider.getBaseAddress())
+                .baseLatitude(provider.getBaseLatitude())
+                .baseLongitude(provider.getBaseLongitude())
                 .serviceRadiusKm(provider.getServiceRadiusKm())
                 .kycStatus(provider.getKycStatus().name())
                 .averageRating(provider.getAverageRating())

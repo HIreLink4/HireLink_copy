@@ -17,6 +17,7 @@ import Bookings from './pages/Bookings'
 import BookingDetail from './pages/BookingDetail'
 import Profile from './pages/Profile'
 import BookService from './pages/BookService'
+import SearchResults from './pages/SearchResults'
 import NotFound from './pages/NotFound'
 
 // Protected Route Component
@@ -42,6 +43,7 @@ function App() {
       {/* Main Routes */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/search" element={<SearchResults />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/categories/:slug" element={<CategoryServices />} />
         <Route path="/services/:id" element={<ServiceDetail />} />

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from 'react-query'
 import { useForm } from 'react-hook-form'
@@ -13,6 +13,7 @@ import {
   ChevronRightIcon
 } from '@heroicons/react/24/outline'
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid'
+import LocationPicker from '../components/LocationPicker'
 
 const timeSlots = [
   '09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00'
@@ -30,8 +31,9 @@ export default function BookService() {
   const navigate = useNavigate()
   const [selectedDate, setSelectedDate] = useState(null)
   const [selectedTime, setSelectedTime] = useState(null)
+  const [selectedLocation, setSelectedLocation] = useState(null)
 
-  const { register, handleSubmit, formState: { errors } } = useForm()
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm()
 
   const { data: serviceData, isLoading: serviceLoading } = useQuery(
     ['service', serviceId],
@@ -55,6 +57,20 @@ export default function BookService() {
 
   const service = serviceData?.data?.data
   const addresses = addressData?.data?.data || []
+
+  // Handle location selection from LocationPicker
+  const handleLocationSelect = (location) => {
+    setSelectedLocation(location)
+    if (location) {
+      // Auto-populate address fields
+      if (location.address) {
+        setValue('address', location.address)
+      }
+      if (location.pincode) {
+        setValue('pincode', location.pincode)
+      }
+    }
+  }
 
   // Generate next 14 days
   const dateOptions = [...Array(14)].map((_, i) => {
@@ -81,6 +97,11 @@ export default function BookService() {
       serviceAddress: data.address,
       serviceLandmark: data.landmark,
       servicePincode: data.pincode,
+      // Include location coordinates if available
+      serviceLatitude: selectedLocation?.latitude || null,
+      serviceLongitude: selectedLocation?.longitude || null,
+      serviceCity: selectedLocation?.city || null,
+      serviceState: selectedLocation?.state || null,
       issueTitle: data.issueTitle,
       issueDescription: data.issueDescription,
       urgencyLevel: data.urgencyLevel,
@@ -186,11 +207,30 @@ export default function BookService() {
                   Service Address
                 </h2>
                 
+                {/* Location Picker */}
+                <LocationPicker 
+                  onLocationSelect={handleLocationSelect}
+                  initialLocation={selectedLocation}
+                  className="mb-4"
+                />
+                
                 {addresses.length > 0 && (
                   <div className="mb-4">
-                    <label className="block text-sm text-gray-600 mb-2">Saved Addresses</label>
-                    <select className="input">
-                      <option value="">Enter new address</option>
+                    <label className="block text-sm text-gray-600 mb-2">Or select from saved addresses</label>
+                    <select 
+                      className="input"
+                      onChange={(e) => {
+                        const addr = addresses.find(a => a.addressId === parseInt(e.target.value))
+                        if (addr) {
+                          setValue('address', `${addr.addressLine1}${addr.addressLine2 ? ', ' + addr.addressLine2 : ''}, ${addr.city}`)
+                          setValue('pincode', addr.pincode)
+                          setValue('landmark', addr.landmark || '')
+                          // Clear location picker selection when using saved address
+                          setSelectedLocation(null)
+                        }
+                      }}
+                    >
+                      <option value="">Select saved address</option>
                       {addresses.map((addr) => (
                         <option key={addr.addressId} value={addr.addressId}>
                           {addr.addressLine1}, {addr.city} - {addr.pincode}

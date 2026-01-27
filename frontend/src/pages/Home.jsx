@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { categoriesAPI, servicesAPI, providersAPI, bookingsAPI } from '../services/api'
 import { useAuthStore } from '../context/authStore'
@@ -15,7 +16,8 @@ import {
   StarIcon,
   ChevronRightIcon,
   CalendarDaysIcon,
-  UserIcon
+  UserIcon,
+  MapPinIcon
 } from '@heroicons/react/24/outline'
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid'
 
@@ -70,6 +72,8 @@ const features = [
 ]
 
 export default function Home() {
+  const [heroSearchQuery, setHeroSearchQuery] = useState('')
+  const navigate = useNavigate()
   const { isAuthenticated, user } = useAuthStore()
   const { data: categoriesData } = useQuery('categories', categoriesAPI.getAll)
   const { data: featuredProviders } = useQuery('featuredProviders', providersAPI.getFeatured)
@@ -85,6 +89,13 @@ export default function Home() {
   
   const isProvider = user?.userType === 'PROVIDER'
   const isCustomer = user?.userType === 'CUSTOMER'
+
+  const handleHeroSearch = (e) => {
+    e.preventDefault()
+    if (heroSearchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(heroSearchQuery.trim())}`)
+    }
+  }
 
   return (
     <div className="animate-fadeIn">
@@ -105,19 +116,24 @@ export default function Home() {
             </p>
             
             {/* Search Bar */}
-            <div className="bg-white rounded-2xl p-2 shadow-2xl shadow-black/10 flex flex-col sm:flex-row gap-2 max-w-2xl mx-auto">
+            <form 
+              onSubmit={handleHeroSearch}
+              className="bg-white rounded-2xl p-2 shadow-2xl shadow-black/10 flex flex-col sm:flex-row gap-2 max-w-2xl mx-auto"
+            >
               <div className="flex-1 flex items-center px-4">
                 <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
                 <input 
-                  type="text" 
+                  type="text"
+                  value={heroSearchQuery}
+                  onChange={(e) => setHeroSearchQuery(e.target.value)}
                   placeholder="What service do you need?"
                   className="w-full px-3 py-3 text-gray-900 placeholder-gray-400 focus:outline-none text-lg"
                 />
               </div>
-              <button className="btn-accent px-8 py-3 text-lg">
+              <button type="submit" className="btn-accent px-8 py-3 text-lg">
                 Search
               </button>
-            </div>
+            </form>
 
             {/* Quick stats */}
             <div className="mt-12 grid grid-cols-3 gap-8 max-w-lg mx-auto">
@@ -282,6 +298,31 @@ export default function Home() {
                 <p className="text-gray-500 text-sm leading-relaxed">{feature.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Location Banner - Quick access hint */}
+      <section className="py-6 bg-gradient-to-r from-emerald-500 to-emerald-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4 text-white">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <MapPinIcon className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Find Providers Near You</h3>
+                <p className="text-emerald-100 text-sm">Click the location button to discover local service providers</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-white/80 text-sm">
+              <span>Look for the</span>
+              <span className="bg-white/20 p-2 rounded-full">
+                <MapPinIcon className="h-5 w-5" />
+              </span>
+              <span>button</span>
+              <ChevronRightIcon className="h-4 w-4" />
+            </div>
           </div>
         </div>
       </section>

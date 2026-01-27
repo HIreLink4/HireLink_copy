@@ -11,7 +11,9 @@ import {
   ChevronRightIcon,
   FunnelIcon,
   UserIcon,
-  WrenchScrewdriverIcon
+  WrenchScrewdriverIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline'
 
 const statusColors = {
@@ -35,18 +37,45 @@ const statusFilters = [
 
 export default function Bookings() {
   const [statusFilter, setStatusFilter] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
   const { user } = useAuthStore()
   
   const isProvider = user?.userType === 'PROVIDER'
   const isAdmin = user?.userType === 'ADMIN' || user?.userType === 'SUPER_ADMIN'
   const isCustomer = user?.userType === 'CUSTOMER'
 
+  // Regular bookings query
   const { data, isLoading } = useQuery(
     ['myBookings', statusFilter],
-    () => bookingsAPI.getMyBookings({ status: statusFilter, page: 0, size: 20 })
+    () => bookingsAPI.getMyBookings({ status: statusFilter, page: 0, size: 20 }),
+    { enabled: !isSearching }
   )
 
-  const bookings = data?.data?.data?.bookings || []
+  // Search query
+  const { data: searchData, isLoading: searchLoading } = useQuery(
+    ['searchBookings', searchQuery],
+    () => bookingsAPI.search(searchQuery, { page: 0, size: 20 }),
+    { enabled: isSearching && searchQuery.length > 0 }
+  )
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      setIsSearching(true)
+    }
+  }
+
+  const clearSearch = () => {
+    setSearchQuery('')
+    setIsSearching(false)
+  }
+
+  const bookings = isSearching 
+    ? (searchData?.data?.data?.bookings || [])
+    : (data?.data?.data?.bookings || [])
+  
+  const loading = isSearching ? searchLoading : isLoading
   
   // Get page title and description based on user type
   const getPageContent = () => {
@@ -70,19 +99,6 @@ export default function Bookings() {
   
   const pageContent = getPageContent()
 
-  if (isLoading) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-gray-200 h-32 rounded-2xl"></div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="animate-fadeIn">
       {/* Header */}
@@ -94,26 +110,78 @@ export default function Bookings() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters */}
-        <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
-          <FunnelIcon className="h-5 w-5 text-gray-400 flex-shrink-0" />
-          {statusFilters.map((filter) => (
-            <button
-              key={filter.value}
-              onClick={() => setStatusFilter(filter.value)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                statusFilter === filter.value
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {filter.label}
+        {/* Search Bar */}
+        <form onSubmit={handleSearch} className="mb-6">
+          <div className="relative flex gap-2">
+            <div className="relative flex-1">
+              <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  if (!e.target.value) {
+                    setIsSearching(false)
+                  }
+                }}
+                placeholder={isProvider ? "Search by service, customer name, or booking #..." : "Search by service, provider, or booking #..."}
+                className="input pl-12 pr-10"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <XMarkIcon className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+            <button type="submit" className="btn-primary px-6">
+              Search
             </button>
-          ))}
-        </div>
+          </div>
+          {isSearching && (
+            <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+              <span>Showing results for "{searchQuery}"</span>
+              <button onClick={clearSearch} className="text-primary-600 hover:underline">
+                Clear search
+              </button>
+            </div>
+          )}
+        </form>
+
+        {/* Filters - only show when not searching */}
+        {!isSearching && (
+          <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
+            <FunnelIcon className="h-5 w-5 text-gray-400 flex-shrink-0" />
+            {statusFilters.map((filter) => (
+              <button
+                key={filter.value}
+                onClick={() => setStatusFilter(filter.value)}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                  statusFilter === filter.value
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="animate-pulse space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-gray-200 h-32 rounded-2xl"></div>
+            ))}
+          </div>
+        )}
 
         {/* Bookings List */}
-        {bookings.length > 0 ? (
+        {!loading && bookings.length > 0 && (
           <div className="space-y-4">
             {bookings.map((booking, index) => (
               <Link
@@ -188,24 +256,44 @@ export default function Bookings() {
               </Link>
             ))}
           </div>
-        ) : (
+        )}
+
+        {/* Empty State */}
+        {!loading && bookings.length === 0 && (
           <div className="text-center py-16">
-            <CalendarDaysIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {isProvider ? 'No service requests yet' : 'No bookings found'}
-            </h3>
-            <p className="text-gray-500 mb-6">
-              {statusFilter 
-                ? 'No bookings match the selected filter' 
-                : isProvider 
-                  ? "You don't have any service requests yet"
-                  : "You haven't made any bookings yet"
-              }
-            </p>
-            {isCustomer && (
-              <Link to="/categories" className="btn-primary">
-                Browse Services
-              </Link>
+            {isSearching ? (
+              <>
+                <MagnifyingGlassIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No results found
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  No bookings match "{searchQuery}"
+                </p>
+                <button onClick={clearSearch} className="btn-secondary">
+                  Clear Search
+                </button>
+              </>
+            ) : (
+              <>
+                <CalendarDaysIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {isProvider ? 'No service requests yet' : 'No bookings found'}
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  {statusFilter 
+                    ? 'No bookings match the selected filter' 
+                    : isProvider 
+                      ? "You don't have any service requests yet"
+                      : "You haven't made any bookings yet"
+                  }
+                </p>
+                {isCustomer && (
+                  <Link to="/categories" className="btn-primary">
+                    Browse Services
+                  </Link>
+                )}
+              </>
             )}
           </div>
         )}

@@ -83,6 +83,8 @@ public class BookingService {
                 .servicePincode(request.getServicePincode())
                 .serviceLatitude(request.getServiceLatitude())
                 .serviceLongitude(request.getServiceLongitude())
+                .serviceCity(request.getServiceCity())
+                .serviceState(request.getServiceState())
                 .issueTitle(request.getIssueTitle())
                 .issueDescription(request.getIssueDescription())
                 .issueImages(issueImagesJson)
@@ -171,6 +173,38 @@ public class BookingService {
             bookingPage = bookingRepository.findAllByOrderByCreatedAtDesc(pageable);
         }
 
+        return mapToBookingListResponse(bookingPage);
+    }
+
+    /**
+     * Search bookings based on user type
+     */
+    @Transactional(readOnly = true)
+    public BookingDTO.BookingListResponse searchBookingsForUser(Long userId, User.UserType userType, String keyword, int page, int size) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getBookingsForUser(userId, userType, null, page, size);
+        }
+        
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Booking> bookingPage;
+        
+        switch (userType) {
+            case CUSTOMER:
+                bookingPage = bookingRepository.searchUserBookings(userId, keyword.trim(), pageable);
+                break;
+            case PROVIDER:
+                ServiceProvider provider = providerRepository.findByUserUserId(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Provider profile not found"));
+                bookingPage = bookingRepository.searchProviderBookings(provider.getProviderId(), keyword.trim(), pageable);
+                break;
+            case ADMIN:
+            case SUPER_ADMIN:
+                bookingPage = bookingRepository.searchAllBookings(keyword.trim(), pageable);
+                break;
+            default:
+                throw new BadRequestException("Invalid user type");
+        }
+        
         return mapToBookingListResponse(bookingPage);
     }
 
@@ -480,6 +514,10 @@ public class BookingService {
                 .serviceAddress(booking.getServiceAddress())
                 .serviceLandmark(booking.getServiceLandmark())
                 .servicePincode(booking.getServicePincode())
+                .serviceLatitude(booking.getServiceLatitude())
+                .serviceLongitude(booking.getServiceLongitude())
+                .serviceCity(booking.getServiceCity())
+                .serviceState(booking.getServiceState())
                 .issueTitle(booking.getIssueTitle())
                 .issueDescription(booking.getIssueDescription())
                 .issueImages(issueImages)

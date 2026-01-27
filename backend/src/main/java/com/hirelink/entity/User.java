@@ -30,11 +30,19 @@ public class User {
     @Column(unique = true, length = 150)
     private String email;
 
-    @Column(nullable = false, unique = true, length = 15)
+    @Column(unique = true, length = 15)
     private String phone;
 
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "password_hash")
     private String passwordHash;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider")
+    @Builder.Default
+    private AuthProvider authProvider = AuthProvider.LOCAL;
+
+    @Column(name = "google_id", length = 100)
+    private String googleId;
 
     @Column(name = "profile_image_url", length = 500)
     private String profileImageUrl;
@@ -114,6 +122,11 @@ public class User {
     private List<Booking> bookings;
 
     // Enums
+    public enum AuthProvider {
+        LOCAL,      // Phone+Password or OTP authentication
+        GOOGLE      // Google OAuth authentication
+    }
+
     public enum Gender {
         MALE, FEMALE, OTHER, PREFER_NOT_TO_SAY
     }

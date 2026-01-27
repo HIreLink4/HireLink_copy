@@ -18,4 +18,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
     
     Optional<User> findByPhoneAndDeletedAtIsNull(String phone);
+    
+    /**
+     * Find user by Google ID for OAuth authentication
+     */
+    Optional<User> findByGoogleId(String googleId);
 }

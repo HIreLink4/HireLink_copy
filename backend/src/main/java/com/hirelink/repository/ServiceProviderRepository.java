@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,4 +38,40 @@ public interface ServiceProviderRepository extends JpaRepository<ServiceProvider
     
     @Query("SELECT sp FROM ServiceProvider sp LEFT JOIN FETCH sp.user LEFT JOIN FETCH sp.services WHERE sp.providerId = :id")
     Optional<ServiceProvider> findByIdWithDetails(@Param("id") Long id);
+    
+    // ========== Location-based queries ==========
+    
+    // Find providers within a geographic bounding box who are available
+    @Query("SELECT sp FROM ServiceProvider sp LEFT JOIN FETCH sp.user " +
+           "WHERE sp.baseLatitude BETWEEN :minLat AND :maxLat " +
+           "AND sp.baseLongitude BETWEEN :minLng AND :maxLng " +
+           "AND sp.isAvailable = true")
+    List<ServiceProvider> findProvidersInArea(
+        @Param("minLat") BigDecimal minLat,
+        @Param("maxLat") BigDecimal maxLat,
+        @Param("minLng") BigDecimal minLng,
+        @Param("maxLng") BigDecimal maxLng
+    );
+    
+    // Find providers in area with category filter
+    @Query("SELECT DISTINCT sp FROM ServiceProvider sp " +
+           "LEFT JOIN FETCH sp.user " +
+           "JOIN sp.services s " +
+           "WHERE sp.baseLatitude BETWEEN :minLat AND :maxLat " +
+           "AND sp.baseLongitude BETWEEN :minLng AND :maxLng " +
+           "AND sp.isAvailable = true " +
+           "AND s.category.categoryId = :categoryId")
+    List<ServiceProvider> findProvidersInAreaByCategory(
+        @Param("minLat") BigDecimal minLat,
+        @Param("maxLat") BigDecimal maxLat,
+        @Param("minLng") BigDecimal minLng,
+        @Param("maxLng") BigDecimal maxLng,
+        @Param("categoryId") Long categoryId
+    );
+    
+    // Find all providers with location data (for distance calculation)
+    @Query("SELECT sp FROM ServiceProvider sp LEFT JOIN FETCH sp.user " +
+           "WHERE sp.baseLatitude IS NOT NULL AND sp.baseLongitude IS NOT NULL " +
+           "AND sp.isAvailable = true")
+    List<ServiceProvider> findAllWithLocation();
 }

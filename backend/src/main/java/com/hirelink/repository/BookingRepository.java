@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -65,4 +66,89 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     
     @Query("SELECT b FROM Booking b LEFT JOIN FETCH b.user LEFT JOIN FETCH b.provider p LEFT JOIN FETCH p.user LEFT JOIN FETCH b.service s LEFT JOIN FETCH s.category WHERE b.provider.providerId = :providerId ORDER BY CASE WHEN b.bookingStatus = 'PENDING' THEN 0 WHEN b.bookingStatus = 'ACCEPTED' THEN 1 WHEN b.bookingStatus = 'CONFIRMED' THEN 2 WHEN b.bookingStatus = 'IN_PROGRESS' THEN 3 ELSE 4 END, b.createdAt DESC")
     List<Booking> findRecentByProviderIdPendingFirst(@Param("providerId") Long providerId, Pageable pageable);
+    
+    // Search bookings by keyword (booking number, service name, customer name)
+    @Query(value = "SELECT b FROM Booking b " +
+           "LEFT JOIN FETCH b.user u " +
+           "LEFT JOIN FETCH b.provider p LEFT JOIN FETCH p.user " +
+           "LEFT JOIN FETCH b.service s LEFT JOIN FETCH s.category " +
+           "WHERE b.user.userId = :userId AND (" +
+           "LOWER(b.bookingNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(s.serviceName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(p.businessName) LIKE LOWER(CONCAT('%', :keyword, '%')))",
+           countQuery = "SELECT COUNT(b) FROM Booking b WHERE b.user.userId = :userId AND (" +
+           "LOWER(b.bookingNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(b.service.serviceName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(b.provider.businessName) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Booking> searchUserBookings(@Param("userId") Long userId, @Param("keyword") String keyword, Pageable pageable);
+    
+    // Search bookings for provider
+    @Query(value = "SELECT b FROM Booking b " +
+           "LEFT JOIN FETCH b.user u " +
+           "LEFT JOIN FETCH b.provider p LEFT JOIN FETCH p.user " +
+           "LEFT JOIN FETCH b.service s LEFT JOIN FETCH s.category " +
+           "WHERE b.provider.providerId = :providerId AND (" +
+           "LOWER(b.bookingNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(s.serviceName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(u.name) LIKE LOWER(CONCAT('%', :keyword, '%')))",
+           countQuery = "SELECT COUNT(b) FROM Booking b WHERE b.provider.providerId = :providerId AND (" +
+           "LOWER(b.bookingNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(b.service.serviceName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(b.user.name) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Booking> searchProviderBookings(@Param("providerId") Long providerId, @Param("keyword") String keyword, Pageable pageable);
+    
+    // Search all bookings (for admin)
+    @Query(value = "SELECT b FROM Booking b " +
+           "LEFT JOIN FETCH b.user u " +
+           "LEFT JOIN FETCH b.provider p LEFT JOIN FETCH p.user " +
+           "LEFT JOIN FETCH b.service s LEFT JOIN FETCH s.category " +
+           "WHERE LOWER(b.bookingNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(s.serviceName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(u.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(p.businessName) LIKE LOWER(CONCAT('%', :keyword, '%'))",
+           countQuery = "SELECT COUNT(b) FROM Booking b WHERE " +
+           "LOWER(b.bookingNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(b.service.serviceName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(b.user.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(b.provider.businessName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    Page<Booking> searchAllBookings(@Param("keyword") String keyword, Pageable pageable);
+    
+    // ========== Location-based queries ==========
+    
+    // Find bookings within a geographic bounding box
+    @Query("SELECT b FROM Booking b " +
+           "LEFT JOIN FETCH b.user LEFT JOIN FETCH b.provider p LEFT JOIN FETCH p.user " +
+           "LEFT JOIN FETCH b.service s LEFT JOIN FETCH s.category " +
+           "WHERE b.serviceLatitude BETWEEN :minLat AND :maxLat " +
+           "AND b.serviceLongitude BETWEEN :minLng AND :maxLng")
+    List<Booking> findBookingsInArea(
+        @Param("minLat") BigDecimal minLat,
+        @Param("maxLat") BigDecimal maxLat,
+        @Param("minLng") BigDecimal minLng,
+        @Param("maxLng") BigDecimal maxLng
+    );
+    
+    // Find bookings by city
+    @Query("SELECT b FROM Booking b " +
+           "LEFT JOIN FETCH b.user LEFT JOIN FETCH b.provider p LEFT JOIN FETCH p.user " +
+           "LEFT JOIN FETCH b.service s LEFT JOIN FETCH s.category " +
+           "WHERE LOWER(b.serviceCity) = LOWER(:city)")
+    List<Booking> findByServiceCity(@Param("city") String city);
+    
+    // Find bookings by city and status
+    @Query("SELECT b FROM Booking b " +
+           "LEFT JOIN FETCH b.user LEFT JOIN FETCH b.provider p LEFT JOIN FETCH p.user " +
+           "LEFT JOIN FETCH b.service s LEFT JOIN FETCH s.category " +
+           "WHERE LOWER(b.serviceCity) = LOWER(:city) AND b.bookingStatus = :status")
+    List<Booking> findByServiceCityAndStatus(
+        @Param("city") String city, 
+        @Param("status") BookingStatus status
+    );
+    
+    // Find bookings by state
+    @Query("SELECT b FROM Booking b " +
+           "LEFT JOIN FETCH b.user LEFT JOIN FETCH b.provider p LEFT JOIN FETCH p.user " +
+           "LEFT JOIN FETCH b.service s LEFT JOIN FETCH s.category " +
+           "WHERE LOWER(b.serviceState) = LOWER(:state)")
+    List<Booking> findByServiceState(@Param("state") String state);
 }

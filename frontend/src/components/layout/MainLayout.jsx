@@ -1,6 +1,7 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuthStore } from '../../context/authStore'
+import NearbyProvidersPanel from '../NearbyProvidersPanel'
 import { 
   Bars3Icon, 
   XMarkIcon, 
@@ -14,6 +15,8 @@ import {
 
 export default function MainLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const { isAuthenticated, user, logout } = useAuthStore()
   const navigate = useNavigate()
 
@@ -22,10 +25,19 @@ export default function MainLayout() {
     navigate('/')
   }
 
+  const handleHeaderSearch = (e) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchQuery('')
+      setSearchOpen(false)
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50 border-b border-gray-100">
+      <header className="bg-white/95 backdrop-blur-lg shadow-sm sticky top-0 z-50 border-b border-gray-100 sticky-header">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Logo */}
@@ -55,6 +67,40 @@ export default function MainLayout() {
 
             {/* Auth Buttons / User Menu */}
             <div className="hidden md:flex items-center space-x-3">
+              {/* Expandable Search */}
+              <div className="relative">
+                {searchOpen ? (
+                  <form onSubmit={handleHeaderSearch} className="flex items-center animate-slideInRight">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search services..."
+                      autoFocus
+                      className="w-64 px-4 py-2 border border-gray-200 rounded-l-lg bg-gray-50 text-sm focus:outline-none focus:bg-white focus:border-primary-500 transition-all"
+                      onBlur={() => {
+                        if (!searchQuery) {
+                          setTimeout(() => setSearchOpen(false), 200)
+                        }
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      className="px-3 py-2 bg-primary-600 text-white rounded-r-lg hover:bg-primary-700 transition-colors"
+                    >
+                      <MagnifyingGlassIcon className="h-5 w-5" />
+                    </button>
+                  </form>
+                ) : (
+                  <button
+                    onClick={() => setSearchOpen(true)}
+                    className="p-2 rounded-lg text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-all"
+                    title="Search"
+                  >
+                    <MagnifyingGlassIcon className="h-5 w-5" />
+                  </button>
+                )}
+              </div>
               {isAuthenticated ? (
                 <div className="flex items-center space-x-3">
                   <Link 
@@ -106,6 +152,32 @@ export default function MainLayout() {
         {mobileMenuOpen && (
           <div className="md:hidden bg-white border-t animate-slideDown">
             <div className="px-4 py-4 space-y-2">
+              {/* Mobile Search */}
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  if (searchQuery.trim()) {
+                    navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+                    setSearchQuery('')
+                    setMobileMenuOpen(false)
+                  }
+                }}
+                className="pb-3 mb-2 border-b"
+              >
+                <div className="relative flex">
+                  <div className="relative flex-1">
+                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search services..."
+                      className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:bg-white focus:border-primary-500 transition-all"
+                    />
+                  </div>
+                </div>
+              </form>
+              
               <Link 
                 to="/" 
                 className="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-all"
@@ -224,6 +296,9 @@ export default function MainLayout() {
           </div>
         </div>
       </footer>
+
+      {/* Floating Nearby Providers Panel - accessible from anywhere */}
+      <NearbyProvidersPanel />
     </div>
   )
 }

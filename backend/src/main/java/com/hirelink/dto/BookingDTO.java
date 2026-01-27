@@ -43,6 +43,8 @@ public class BookingDTO {
 
         private BigDecimal serviceLatitude;
         private BigDecimal serviceLongitude;
+        private String serviceCity;
+        private String serviceState;
 
         private String issueTitle;
         private String issueDescription;
@@ -63,6 +65,10 @@ public class BookingDTO {
         private String serviceAddress;
         private String serviceLandmark;
         private String servicePincode;
+        private BigDecimal serviceLatitude;
+        private BigDecimal serviceLongitude;
+        private String serviceCity;
+        private String serviceState;
         private String issueTitle;
         private String issueDescription;
         private List<String> issueImages;

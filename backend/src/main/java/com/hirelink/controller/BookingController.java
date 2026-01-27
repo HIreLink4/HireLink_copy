@@ -50,6 +50,18 @@ public class BookingController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @GetMapping("/search")
+    @Operation(summary = "Search bookings by keyword")
+    public ResponseEntity<ApiResponse<BookingDTO.BookingListResponse>> searchBookings(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        BookingDTO.BookingListResponse response = bookingService.searchBookingsForUser(
+                userDetails.getUserId(), userDetails.getUserType(), keyword, page, size);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
     @GetMapping("/recent")
     @Operation(summary = "Get recent bookings for dashboard (PENDING first)")
     public ResponseEntity<ApiResponse<List<BookingDTO.BookingResponse>>> getRecentBookings(

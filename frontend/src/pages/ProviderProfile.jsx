@@ -224,7 +224,32 @@ export default function ProviderProfile() {
                     </div>
                   </div>
                 )}
+                {provider.serviceRadiusKm && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-500">Service Radius</span>
+                    <span className="font-semibold">{provider.serviceRadiusKm} km</span>
+                  </div>
+                )}
               </div>
+
+              {/* Location Info */}
+              {provider.baseAddress && (
+                <div className="mt-4 pt-4 border-t">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Base Location</h4>
+                  <p className="text-sm text-gray-600">{provider.baseAddress}</p>
+                  {provider.baseLatitude && provider.baseLongitude && (
+                    <a
+                      href={`https://www.google.com/maps?q=${provider.baseLatitude},${provider.baseLongitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 mt-2"
+                    >
+                      <MapPinIcon className="h-4 w-4" />
+                      View on Map
+                    </a>
+                  )}
+                </div>
+              )}
 
               {provider.kycStatus === 'VERIFIED' && (
                 <div className="mt-6 p-3 bg-green-50 rounded-xl flex items-center gap-2 text-green-700">
